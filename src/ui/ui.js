@@ -222,7 +222,7 @@ class UI {
     overlay.classList.add('active');
   }
 
-  showGameOverScreen(score, correct, total, streak) {
+  showGameOverScreen(score, correct, total, bestStreak) {
     const scoreEl = this._cache['gameover-score'];
     const correctEl = this._cache['gameover-correct'];
     const streakEl = this._cache['gameover-streak'];
@@ -230,7 +230,7 @@ class UI {
 
     if (scoreEl) scoreEl.textContent = score;
     if (correctEl) correctEl.textContent = correct;
-    if (streakEl) streakEl.textContent = streak;
+    if (streakEl) streakEl.textContent = bestStreak;
     if (totalEl) totalEl.textContent = total;
 
     this.showScreen('gameover-screen');

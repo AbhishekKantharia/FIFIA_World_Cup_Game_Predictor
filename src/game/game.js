@@ -66,6 +66,7 @@ class Game {
       correct: isCorrect,
       score: this.score,
       streak: this.streak,
+      bestStreak: this.bestStreak,
       correctPredictions: this.correctPredictions,
       isGameOver: this.isGameOver
     };

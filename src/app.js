@@ -112,7 +112,7 @@ class App {
       this.game.score,
       this.game.correctPredictions,
       total,
-      this.game.streak
+      this.game.bestStreak
     );
   }
 }
