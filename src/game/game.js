@@ -2,6 +2,7 @@ class Game {
   constructor() {
     this.score = 0;
     this.streak = 0;
+    this.bestStreak = 0;
     this.correctPredictions = 0;
     this.currentMatchIndex = 0;
     this.isGameOver = false;
@@ -13,6 +14,7 @@ class Game {
     this.playerName = playerName;
     this.score = 0;
     this.streak = 0;
+    this.bestStreak = 0;
     this.correctPredictions = 0;
     this.currentMatchIndex = 0;
     this.isGameOver = false;
@@ -24,6 +26,7 @@ class Game {
     if (!state) return false;
     this.score = state.score || 0;
     this.streak = state.streak || 0;
+    this.bestStreak = state.bestStreak || 0;
     this.correctPredictions = state.correctPredictions || 0;
     this.currentMatchIndex = state.currentMatchIndex || 0;
     this.isGameOver = state.isGameOver || false;
@@ -51,6 +54,7 @@ class Game {
     if (isCorrect) {
       this.score += 10 + (this.streak * 2);
       this.streak++;
+      if (this.streak > this.bestStreak) this.bestStreak = this.streak;
       this.correctPredictions++;
     } else {
       this.isGameOver = true;
@@ -77,6 +81,7 @@ class Game {
     return {
       score: this.score,
       streak: this.streak,
+      bestStreak: this.bestStreak,
       correctPredictions: this.correctPredictions,
       currentMatchIndex: this.currentMatchIndex,
       isGameOver: this.isGameOver,
