@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIFA World Cup 2026 - Match Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+  <div id="app">
+    <div id="start-screen" class="screen active">
+      <div class="world-cup-logo">🏆</div>
+      <h1 class="game-title">FIFA World Cup<br><span class="highlight">2026 Predictor</span></h1>
+      <p class="game-subtitle">Can you predict the winners?</p>
+      <div class="high-score-badge">
+        <span class="trophy">👑</span>
+        <span>High Score:</span>
+        <span class="value" id="high-score-value">0</span>
+      </div>
+      <div class="name-input-group">
+        <input type="text" id="player-name-input" class="name-input" placeholder="Enter your name" maxlength="20">
+      </div>
+      <button id="start-btn" class="btn btn-primary">Start Game</button>
+      <button id="leaderboard-btn" class="btn btn-secondary btn-small" style="margin-top:12px;">Leaderboard</button>
+    </div>
+
+    <div id="match-screen" class="screen">
+      <div class="match-header">
+        <div class="match-stage" id="match-stage">Group Stage</div>
+        <div class="match-info">
+          <span id="match-date-venue">June 11, 2026 | Estadio Azteca, Mexico City</span>
+        </div>
+      </div>
+      <div class="score-display">
+        <div class="label">Score</div>
+        <div class="value" id="score-value">0</div>
+        <div class="streak-info" id="streak-info"></div>
+      </div>
+      <div class="match-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-text" id="progress-text">Match 1 of 100</div>
+      </div>
+      <div class="team-cards">
+        <div class="team-card" id="team-a-card" data-team="">
+          <span class="flag" id="team-a-flag"></span>
+          <div class="name" id="team-a-name"></div>
+          <div class="code" id="team-a-code"></div>
+          <div class="score-reveal" id="team-a-score"></div>
+          <div class="result-badge"></div>
+          <div class="select-hint">Click to predict</div>
+        </div>
+        <div class="vs-divider">VS</div>
+        <div class="team-card" id="team-b-card" data-team="">
+          <span class="flag" id="team-b-flag"></span>
+          <div class="name" id="team-b-name"></div>
+          <div class="code" id="team-b-code"></div>
+          <div class="score-reveal" id="team-b-score"></div>
+          <div class="result-badge"></div>
+          <div class="select-hint">Click to predict</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-overlay" class="result-overlay">
+      <div class="result-card">
+        <div class="icon" id="result-icon">✅</div>
+        <div class="title success" id="result-title">Correct!</div>
+        <div class="detail" id="result-detail"></div>
+        <button id="result-next-btn" class="btn btn-primary" style="margin-top:20px;">Next Match</button>
+      </div>
+    </div>
+
+    <div id="gameover-screen" class="screen">
+      <div class="gameover-icon">🏆</div>
+      <h1 class="gameover-title">Game Over</h1>
+      <p class="gameover-subtitle">Thanks for playing, predictor!</p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="gameover-score">0</div>
+          <div class="stat-label">Final Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="gameover-correct">0</div>
+          <div class="stat-label">Correct</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="gameover-streak">0</div>
+          <div class="stat-label">Best Streak</div>
+        </div>
+      </div>
+      <div class="gameover-actions">
+        <button id="restart-from-gameover-btn" class="btn btn-primary">Play Again</button>
+        <button id="restart-btn" class="btn btn-secondary">Main Menu</button>
+      </div>
+    </div>
+
+    <div id="leaderboard-screen" class="screen">
+      <div class="leaderboard-header">
+        <h2>🏆 Leaderboard</h2>
+        <p>Top predictors from around the world</p>
+      </div>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Score</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body"></tbody>
+      </table>
+      <button id="back-to-start-btn" class="btn btn-secondary btn-small">Back to Menu</button>
+    </div>
+  </div>
+
+  <script src="src/data/matches.js"></script>
+  <script src="src/data/storage.js"></script>
+  <script src="src/data/datastore.js"></script>
+  <script src="src/game/game.js"></script>
+  <script src="src/ui/ui.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
