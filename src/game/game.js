@@ -1,5 +1,6 @@
 class Game {
-  constructor() {
+  constructor(dataStore) {
+    this.dataStore = dataStore;
     this.score = 0;
     this.streak = 0;
     this.bestStreak = 0;
@@ -18,7 +19,7 @@ class Game {
     this.correctPredictions = 0;
     this.currentMatchIndex = 0;
     this.isGameOver = false;
-    this.matches = this._shuffle(DataStore.getCompletedMatches());
+    this.matches = this._shuffle(this.dataStore.getCompletedMatches());
     return this;
   }
 
@@ -31,10 +32,16 @@ class Game {
     this.currentMatchIndex = state.currentMatchIndex || 0;
     this.isGameOver = state.isGameOver || false;
     this.playerName = state.playerName || '';
-    this.matches = state.matches || [];
-    if (this.matches.length === 0) {
-      this.matches = this._shuffle(DataStore.getCompletedMatches());
+
+    if (state.matchIds && state.matchIds.length > 0) {
+      const allMatches = this.dataStore.getCompletedMatches();
+      this.matches = state.matchIds
+        .map(id => allMatches.find(m => m.id === id))
+        .filter(Boolean);
+    } else {
+      this.matches = this._shuffle(this.dataStore.getCompletedMatches());
     }
+
     return !this.isGameOver && this.currentMatchIndex < this.matches.length;
   }
 
@@ -86,17 +93,13 @@ class Game {
       correctPredictions: this.correctPredictions,
       currentMatchIndex: this.currentMatchIndex,
       isGameOver: this.isGameOver,
-      matches: this.matches,
+      matchIds: this.matches.map(m => m.id),
       playerName: this.playerName
     };
   }
 
   totalMatches() {
     return this.matches.length;
-  }
-
-  isDraw(match) {
-    return match.winner === null;
   }
 
   _shuffle(array) {

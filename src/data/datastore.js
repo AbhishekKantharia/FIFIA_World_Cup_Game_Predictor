@@ -1,76 +1,109 @@
-const flags = {
-  MEX: '\u{1F1F2}\u{1F1FD}',
-  RSA: '\u{1F1FF}\u{1F1E6}',
-  KOR: '\u{1F1F0}\u{1F1F7}',
-  CZE: '\u{1F1E8}\u{1F1FF}',
-  CAN: '\u{1F1E8}\u{1F1E6}',
-  BIH: '\u{1F1E7}\u{1F1E6}',
-  USA: '\u{1F1FA}\u{1F1F8}',
-  PAR: '\u{1F1F5}\u{1F1FE}',
-  QAT: '\u{1F1F6}\u{1F1E6}',
-  SUI: '\u{1F1E8}\u{1F1ED}',
-  BRA: '\u{1F1E7}\u{1F1F7}',
-  MAR: '\u{1F1F2}\u{1F1E6}',
-  HAI: '\u{1F1ED}\u{1F1F9}',
-  SCO: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}',
-  AUS: '\u{1F1E6}\u{1F1FA}',
-  TUR: '\u{1F1F9}\u{1F1F7}',
-  GER: '\u{1F1E9}\u{1F1EA}',
-  CUW: '\u{1F1E8}\u{1F1FC}',
-  NED: '\u{1F1F3}\u{1F1F1}',
-  JPN: '\u{1F1EF}\u{1F1F5}',
-  CIV: '\u{1F1E8}\u{1F1EE}',
-  ECU: '\u{1F1EA}\u{1F1E8}',
-  SWE: '\u{1F1F8}\u{1F1EA}',
-  TUN: '\u{1F1F9}\u{1F1F3}',
-  ESP: '\u{1F1EA}\u{1F1F8}',
-  CPV: '\u{1F1E8}\u{1F1FB}',
-  BEL: '\u{1F1E7}\u{1F1EA}',
-  EGY: '\u{1F1EA}\u{1F1EC}',
-  KSA: '\u{1F1F8}\u{1F1E6}',
-  URU: '\u{1F1FA}\u{1F1FE}',
-  IRN: '\u{1F1EE}\u{1F1F7}',
-  NZL: '\u{1F1F3}\u{1F1FF}',
-  FRA: '\u{1F1EB}\u{1F1F7}',
-  SEN: '\u{1F1F8}\u{1F1F3}',
-  IRQ: '\u{1F1EE}\u{1F1F6}',
-  NOR: '\u{1F1F3}\u{1F1F4}',
-  ARG: '\u{1F1E6}\u{1F1F7}',
-  ALG: '\u{1F1E9}\u{1F1FF}',
-  AUT: '\u{1F1E6}\u{1F1F9}',
-  JOR: '\u{1F1EF}\u{1F1F4}',
-  POR: '\u{1F1F5}\u{1F1F9}',
-  COD: '\u{1F1E8}\u{1F1E9}',
-  ENG: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}',
-  CRO: '\u{1F1ED}\u{1F1F7}',
-  GHA: '\u{1F1EC}\u{1F1ED}',
-  PAN: '\u{1F1F5}\u{1F1E6}',
-  UZB: '\u{1F1FA}\u{1F1FF}',
-  COL: '\u{1F1E8}\u{1F1F4}'
-};
-
 class DataStore {
-  static getCompletedMatches() {
-    return MATCHES_DATA.filter(m => m.winner !== null);
+  constructor() {
+    this._teams = [];
+    this._matches = [];
+    this._stadiums = [];
+    this._teamMap = {};
+    this._stadiumMap = {};
+    this._loaded = false;
+    this._loading = false;
+    this._loadPromise = null;
   }
 
-  static getUpcomingMatches() {
-    return MATCHES_DATA.filter(m => m.winner === null);
+  async load() {
+    if (this._loaded) return;
+    if (this._loading) return this._loadPromise;
+
+    this._loading = true;
+    this._loadPromise = this._doLoad();
+    return this._loadPromise;
   }
 
-  static getMatchById(id) {
-    return MATCHES_DATA.find(m => m.id === id);
+  async _doLoad() {
+    try {
+      const data = await ApiService.fetchAll();
+      this._teams = data.teams;
+      this._matches = data.matches;
+      this._stadiums = data.stadiums;
+
+      this._teamMap = {};
+      this._teams.forEach(t => {
+        this._teamMap[t.id] = t;
+        this._teamMap[t.fifa_code] = t;
+      });
+
+      this._stadiumMap = {};
+      this._stadiums.forEach(s => {
+        this._stadiumMap[s.id] = s;
+      });
+
+      this._loaded = true;
+    } catch (e) {
+      this._loading = false;
+      throw e;
+    }
+    this._loading = false;
   }
 
-  static getFlag(code) {
-    return flags[code] || '';
+  getCompletedMatches() {
+    return this._matches
+      .filter(m => m.finished === 'TRUE' && m.time_elapsed === 'finished')
+      .map(m => this._enrichMatch(m));
   }
 
-  static getAllMatches() {
-    return MATCHES_DATA;
+  getAllMatches() {
+    return this._matches.map(m => this._enrichMatch(m));
   }
 
-  static getMatchesByStage(stage) {
-    return MATCHES_DATA.filter(m => m.stage === stage);
+  _enrichMatch(m) {
+    const home = this._teamMap[m.home_team_id];
+    const away = this._teamMap[m.away_team_id];
+
+    return {
+      id: parseInt(m.id),
+      teamA: {
+        name: m.home_team_name_en || home?.name_en || 'TBD',
+        code: home?.fifa_code || 'TBD',
+        flag: home?.flag || ''
+      },
+      teamB: {
+        name: m.away_team_name_en || away?.name_en || 'TBD',
+        code: away?.fifa_code || 'TBD',
+        flag: away?.flag || ''
+      },
+      stage: ApiService.stageLabel(m.type, m.group),
+      date: ApiService.normalizeDate(m.local_date),
+      venue: this._getStadiumName(m.stadium_id),
+      scoreA: m.home_score !== null ? parseInt(m.home_score) : null,
+      scoreB: m.away_score !== null ? parseInt(m.away_score) : null,
+      winner: this._determineWinner(m),
+      finished: m.finished === 'TRUE',
+      type: m.type,
+      group: m.group
+    };
+  }
+
+  _determineWinner(m) {
+    if (m.finished !== 'TRUE') return null;
+    const hs = parseInt(m.home_score);
+    const as = parseInt(m.away_score);
+    if (hs > as) return this._teamMap[m.home_team_id]?.fifa_code || null;
+    if (as > hs) return this._teamMap[m.away_team_id]?.fifa_code || null;
+    return null;
+  }
+
+  _getStadiumName(stadiumId) {
+    const s = this._stadiumMap[stadiumId];
+    return s ? `${s.name_en}, ${s.city_en}` : `Stadium ${stadiumId}`;
+  }
+
+  getFlag(code) {
+    const team = this._teamMap[code];
+    if (team?.flag) return team.flag;
+    return '';
+  }
+
+  isLoaded() {
+    return this._loaded;
   }
 }

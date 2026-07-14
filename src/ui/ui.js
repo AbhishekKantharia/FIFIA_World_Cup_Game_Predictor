@@ -5,8 +5,9 @@ class UI {
     this._cache = {};
   }
 
-  init(game) {
+  init(game, dataStore) {
     this.game = game;
+    this.dataStore = dataStore;
     this._cacheElements();
     this._setupBackground();
   }
@@ -144,8 +145,14 @@ class UI {
     const aScore = this._cache['team-a-score'];
     const bScore = this._cache['team-b-score'];
 
-    if (aFlag) aFlag.textContent = DataStore.getFlag(match.teamA.code);
-    if (bFlag) bFlag.textContent = DataStore.getFlag(match.teamB.code);
+    if (aFlag) {
+      if (match.teamA.flag) aFlag.innerHTML = `<img src="${match.teamA.flag}" alt="${match.teamA.code}" class="team-flag-img">`;
+      else aFlag.textContent = match.teamA.code;
+    }
+    if (bFlag) {
+      if (match.teamB.flag) bFlag.innerHTML = `<img src="${match.teamB.flag}" alt="${match.teamB.code}" class="team-flag-img">`;
+      else bFlag.textContent = match.teamB.code;
+    }
     if (aName) aName.textContent = match.teamA.name;
     if (bName) bName.textContent = match.teamB.name;
     if (aCode) aCode.textContent = match.teamA.code;

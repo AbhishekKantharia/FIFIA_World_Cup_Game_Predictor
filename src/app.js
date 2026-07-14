@@ -2,21 +2,30 @@ class App {
   constructor() {
     this.game = null;
     this.ui = new UI();
+    this.dataStore = new DataStore();
     this._init();
   }
 
-  _init() {
+  async _init() {
+    try {
+      await this.dataStore.load();
+    } catch (e) {
+      console.error('Failed to load data:', e);
+      this.ui.showError(`Could not load World Cup data from the API. Please check your internet connection and refresh. (${e.message})`);
+      return;
+    }
+
     try {
       const saved = Storage.getGameState();
-      this.game = new Game();
+      this.game = new Game(this.dataStore);
 
       if (saved && this.game.restore(saved)) {
-        this.ui.init(this.game);
+        this.ui.init(this.game, this.dataStore);
         this._loadMatch();
       } else {
         Storage.clearGameState();
-        this.game = new Game();
-        this.ui.init(this.game);
+        this.game = new Game(this.dataStore);
+        this.ui.init(this.game, this.dataStore);
         this.ui.showStartScreen(Storage.getHighScore());
       }
 
